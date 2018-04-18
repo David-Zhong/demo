@@ -1,4 +1,4 @@
-package com.pwc.demo1.web;
+package com.pwc.demo1.controller;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -20,7 +20,7 @@ import com.pwc.demo1.model.User;
 @RequestMapping("/users")
 public class UserController {
 	
-	static Map<Long, User> users = Collections.synchronizedMap(new HashMap<Long, User>()); 
+//	static Map<Long, User> users = Collections.synchronizedMap(new HashMap<Long, User>()); 
 	
 	@Autowired
 	UserMapper UserMapper;
@@ -29,7 +29,7 @@ public class UserController {
     public List<User> getUserList() { 
         // 处理"/users/"的GET请求，用来获取用户列表 
         // 还可以通过@RequestParam从页面中传递参数来进行查询条件或者翻页信息的传递 
-        List<User> r = new ArrayList<User>(users.values()); 
+        List<User> r = new ArrayList<User>(); 
 		r = UserMapper.findAllUser();
         return r; 
     } 
@@ -38,7 +38,9 @@ public class UserController {
     public String postUser(@ModelAttribute User user) { 
         // 处理"/users/"的POST请求，用来创建User 
         // 除了@ModelAttribute绑定参数之外，还可以通过@RequestParam从页面中传递参数 
-        users.put(user.getId(), user); 
+//        users.put(user.getId(), user); 
+	    Integer id = Integer.valueOf(System.currentTimeMillis()+"");
+        UserMapper.insert(id, user.getName(), Integer.valueOf(""+user.getAge()));
         return "success"; 
     } 
  
@@ -46,24 +48,27 @@ public class UserController {
     public User getUser(@PathVariable Long id) { 
         // 处理"/users/{id}"的GET请求，用来获取url中id值的User信息 
         // url中的id可通过@PathVariable绑定到函数的参数中 
-        return users.get(id); 
+    	User user = new User();
+    	user = UserMapper.findById(Integer.valueOf(id+""));
+        return user;
     } 
  
     @RequestMapping(value="/{id}", method=RequestMethod.PUT) 
     public String putUser(@PathVariable Long id, @ModelAttribute User user) { 
         // 处理"/users/{id}"的PUT请求，用来更新User信息 
-        User u = users.get(id); 
-        u.setName(user.getName()); 
-        u.setAge(user.getAge()); 
-        users.put(id, u); 
+//        User u = users.get(id); 
+//        u.setName(user.getName()); 
+//        u.setAge(user.getAge()); 
+//        users.put(id, u);
+        UserMapper.updateById(user.getName(), Integer.valueOf(""+user.getAge()), Integer.valueOf(id+""));
         return "success"; 
     } 
  
     @RequestMapping(value="/{id}", method=RequestMethod.DELETE) 
     public String deleteUser(@PathVariable Long id) { 
         // 处理"/users/{id}"的DELETE请求，用来删除User 
-        users.remove(id); 
-        return "success"; 
+    	UserMapper.deleteById(Integer.valueOf(id+""));
+        return null; 
     } 
  
 }
